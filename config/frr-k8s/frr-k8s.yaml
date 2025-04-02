@@ -57,15 +57,15 @@ spec:
           readOnlyRootFilesystem: true
         livenessProbe:
           httpGet:
-            path: /metrics
-            port: monitoring
+            path: /healthz
+            port: 7574
             host: 127.0.0.1
           initialDelaySeconds: 15
           periodSeconds: 20
         readinessProbe:
           httpGet:
-            path: /metrics
-            port: monitoring
+            path: /healthz
+            port: 7574
             host: 127.0.0.1
           initialDelaySeconds: 5
           periodSeconds: 10
@@ -298,14 +298,14 @@ spec:
           name: monitoring
         livenessProbe:
           httpGet:
-            path: /metrics
-            port: monitoring
+            path: /healthz
+            port: 7574
           initialDelaySeconds: 15
           periodSeconds: 20
         readinessProbe:
           httpGet:
-            path: /metrics
-            port: monitoring
+            path: /healthz
+            port: 7574
           initialDelaySeconds: 5
           periodSeconds: 10
         # TODO(user): Configure the resources accordingly based on the project requirements.
