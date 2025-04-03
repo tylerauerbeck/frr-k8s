@@ -229,9 +229,8 @@ spec:
         {{- if .Values.frrk8s.livenessProbe.enabled }}
         livenessProbe:
           httpGet:
-            path: /metrics
-            port: monitoring
-            host: {{ .Values.prometheus.metricsBindAddress }}
+            path: /healthz
+            port: {{ .Values.frrk8s.healthcheckPort}}
           initialDelaySeconds: {{ .Values.frrk8s.livenessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.frrk8s.livenessProbe.periodSeconds }}
           timeoutSeconds: {{ .Values.frrk8s.livenessProbe.timeoutSeconds }}
@@ -241,9 +240,8 @@ spec:
         {{- if .Values.frrk8s.readinessProbe.enabled }}
         readinessProbe:
           httpGet:
-            path: /metrics
-            port: monitoring
-            host: {{ .Values.prometheus.metricsBindAddress }}
+            path: /healthz
+            port: {{ .Values.frrk8s.healthcheckPort }}
           initialDelaySeconds: {{ .Values.frrk8s.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ .Values.frrk8s.readinessProbe.periodSeconds }}
           timeoutSeconds: {{ .Values.frrk8s.readinessProbe.timeoutSeconds }}
@@ -392,58 +390,6 @@ spec:
         {{- with .Values.frrk8s.frrStatus.resources }}
         resources:
           {{- toYaml . | nindent 12 }}
-        {{- end }}
-      - name: kube-rbac-proxy
-        image: {{ .Values.prometheus.rbacProxy.repository }}:{{ .Values.prometheus.rbacProxy.tag }}
-        imagePullPolicy: {{ .Values.prometheus.rbacProxy.pullPolicy }}
-        args:
-          - --logtostderr
-          - --secure-listen-address=:{{ .Values.prometheus.secureMetricsPort }}
-          - --upstream=http://{{.Values.prometheus.metricsBindAddress}}:{{ .Values.prometheus.metricsPort }}/
-          - --tls-cipher-suites=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
-        {{- if .Values.prometheus.metricsTLSSecret }}
-          - --tls-private-key-file=/etc/metrics/tls.key
-          - --tls-cert-file=/etc/metrics/tls.crt
-        {{- end }}
-        ports:
-          - containerPort: {{ .Values.prometheus.secureMetricsPort }}
-            name: metricshttps
-        resources:
-          requests:
-            cpu: 10m
-            memory: 20Mi
-        terminationMessagePolicy: FallbackToLogsOnError
-        {{- if .Values.prometheus.metricsTLSSecret }}
-        volumeMounts:
-          - name: metrics-certs
-            mountPath: /etc/metrics
-            readOnly: true
-        {{- end }}
-      - name: kube-rbac-proxy-frr
-        image: {{ .Values.prometheus.rbacProxy.repository }}:{{ .Values.prometheus.rbacProxy.tag | default .Chart.AppVersion }}
-        imagePullPolicy: {{ .Values.prometheus.rbacProxy.pullPolicy }}
-        args:
-          - --logtostderr
-          - --secure-listen-address=:{{ .Values.frrk8s.frr.secureMetricsPort }}
-          - --tls-cipher-suites=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256
-          - --upstream=http://{{ .Values.frrk8s.frr.metricsBindAddress }}:{{ .Values.frrk8s.frr.metricsPort }}/
-        {{- if .Values.prometheus.metricsTLSSecret }}
-          - --tls-private-key-file=/etc/metrics/tls.key
-          - --tls-cert-file=/etc/metrics/tls.crt
-        {{- end }}
-        ports:
-          - containerPort: {{ .Values.frrk8s.frr.secureMetricsPort }}
-            name: metricshttps
-        resources:
-          requests:
-            cpu: 10m
-            memory: 20Mi
-        terminationMessagePolicy: FallbackToLogsOnError
-        {{- if .Values.prometheus.metricsTLSSecret }}
-        volumeMounts:
-          - name: metrics-certs
-            mountPath: /etc/metrics
-            readOnly: true
         {{- end }}
       nodeSelector:
         "kubernetes.io/os": linux
