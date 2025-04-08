@@ -1000,8 +1000,8 @@ spec:
         imagePullPolicy: IfNotPresent
         livenessProbe:
           httpGet:
-            path: /metrics
-            port: monitoring
+            path: /healthz
+            port: 7574
           initialDelaySeconds: 15
           periodSeconds: 20
         name: frr-k8s-webhook-server
@@ -1010,8 +1010,8 @@ spec:
           name: monitoring
         readinessProbe:
           httpGet:
-            path: /metrics
-            port: monitoring
+            path: /healthz
+            port: 7574
           initialDelaySeconds: 5
           periodSeconds: 10
         resources:
@@ -1096,16 +1096,16 @@ spec:
         livenessProbe:
           httpGet:
             host: 127.0.0.1
-            path: /metrics
-            port: monitoring
+            path: /healthz
+            port: 7574
           initialDelaySeconds: 15
           periodSeconds: 20
         name: frr-k8s
         readinessProbe:
           httpGet:
             host: 127.0.0.1
-            path: /metrics
-            port: monitoring
+            path: /healthz
+            port: 7574
           initialDelaySeconds: 5
           periodSeconds: 10
         resources:
