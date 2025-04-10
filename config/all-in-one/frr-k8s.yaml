@@ -1148,34 +1148,11 @@ spec:
                 - linux
       containers:
       - args:
-        - --secure-listen-address=0.0.0.0:9140
-        - --upstream=http://127.0.0.1:7572/
-        - --logtostderr=true
-        - --v=0
-        image: gcr.io/kubebuilder/kube-rbac-proxy:v0.13.1
-        name: kube-rbac-proxy
-        ports:
-        - containerPort: 9140
-          name: metricshttps
-          protocol: TCP
-        resources:
-          limits:
-            cpu: 500m
-            memory: 128Mi
-          requests:
-            cpu: 5m
-            memory: 64Mi
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - ALL
-      - args:
         - --secure-listen-address=0.0.0.0:9141
         - --upstream=http://127.0.0.1:7573/
         - --logtostderr=true
         - --v=0
-        image: gcr.io/kubebuilder/kube-rbac-proxy:v0.13.1
+        image: quay.io/brancz/kube-rbac-proxy:v0.19.0
         name: kube-rbac-proxy-frr
         ports:
         - containerPort: 9141
@@ -1195,9 +1172,6 @@ spec:
             - ALL
       - args:
         - --metrics-bind-address=127.0.0.1:7572
-        - --node-name=$(NODE_NAME)
-        - --namespace=$(NAMESPACE)
-        - --log-level=info
         command:
         - /frr-k8s
         env:
@@ -1218,19 +1192,19 @@ spec:
         livenessProbe:
           httpGet:
             host: 127.0.0.1
-            path: /metrics
-            port: monitoring
+            path: /healthz
+            port: 7574
           initialDelaySeconds: 15
           periodSeconds: 20
         name: frr-k8s
         ports:
         - containerPort: 7572
-          name: monitoring
+          name: metricshttps
         readinessProbe:
           httpGet:
             host: 127.0.0.1
-            path: /metrics
-            port: monitoring
+            path: /healthz
+            port: 7574
           initialDelaySeconds: 5
           periodSeconds: 10
         resources:
