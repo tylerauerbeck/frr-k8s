@@ -1,8 +1,8 @@
 module github.com/metallb/frr-k8s
 
-go 1.23.0
+go 1.24
 
-toolchain go1.23.8
+toolchain go1.24.2
 
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
